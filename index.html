@@ -1,242 +1,228 @@
-<!DOCTYPE html>
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analisador Aridelson B. - Smart Flow</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Analisador Master - Pro 70%</title>
     <style>
-        :root { --blue: #007aff; --red: #ff3b30; --green: #4cd964; --gold: #ffd700; --dark: #1a1a1a; }
-        body { display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; background-color: #b0b0b0; font-family: 'Segoe UI', sans-serif; padding: 10px; }
-        .smartphone { width: 330px; height: 740px; background: var(--dark); border-radius: 50px; border: 10px solid #333; position: relative; padding: 12px; box-sizing: border-box; }
-        .screen { width: 100%; height: 100%; background: #000; border-radius: 38px; overflow: hidden; display: flex; flex-direction: column; }
+        :root { 
+            --blue: #007aff; --red: #ff3b30; --green: #4cd964; --green-lemon: #ccff00; 
+            --dark-green: #006400; --gold: #ffd700; --lilac: #b666d2; --dark: #000000; 
+        }
         
-        .display { height: 35%; background: #000; position: relative; overflow: hidden; display: flex; flex-direction: column; }
-        #standby-screen { position: absolute; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #000; z-index: 20; }
-        .visor-half { height: 50%; width: 100%; display: none; flex-direction: column; justify-content: center; align-items: center; }
-        .res-balloon { width: 92%; height: 90%; border-radius: 15px; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 2px solid rgba(255,255,255,0.2); }
-        .neon-text { font-weight: 900; font-size: 1.8rem; animation: neon-pulse 1.5s infinite alternate; }
-        @keyframes neon-pulse { from { text-shadow: 0 0 5px #fff, 0 0 15px var(--blue); } to { text-shadow: 0 0 10px #fff, 0 0 25px var(--blue); } }
+        body, html { 
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            background-color: #b0b0b0; font-family: 'Segoe UI', sans-serif; 
+            overflow: hidden; display: flex; justify-content: center;
+        }
 
-        .bible-bar { height: 22px; background: #111; color: var(--gold); font-size: 0.65rem; display: flex; align-items: center; overflow: hidden; white-space: nowrap; border-bottom: 1px solid #333; }
-        .marquee { display: inline-block; padding-left: 100%; animation: scroll 30s linear infinite; }
+        .main-app {
+            width: 95%; height: 98%; margin-top: 1%;
+            display: flex; flex-direction: column; background: #000;
+            border-radius: 15px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        
+        /* VISOR EM 70% */
+        .display { height: 70%; background: #000; position: relative; display: flex; flex-direction: column; overflow: hidden; border-bottom: 2px solid #222; }
+        
+        #iframe-visor {
+            position: absolute; top: 0; left: 100%; width: 100%; height: 100%;
+            z-index: 100; background: white; transition: left 0.4s ease-in-out;
+            overflow: hidden;
+        }
+        #iframe-visor.open { left: 0 !important; }
+        
+        #iframe-visor iframe {
+            width: 80%; height: 80%; border: none;
+            transform: scale(1.25);
+            transform-origin: 0 0;
+        }
+        
+        .close-iframe-btn {
+            position: absolute; top: 10px; right: 10px; z-index: 101;
+            background: var(--red); color: white; border: none; padding: 10px 15px; border-radius: 6px; font-weight: bold; font-size: 1.2rem;
+        }
+
+        #standby-screen { position: absolute; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 20; }
+        .visor-half { height: 50%; width: 100%; display: none; flex-direction: column; justify-content: center; align-items: center; }
+        .res-balloon { width: 95%; height: 92%; border-radius: 10px; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 1px solid rgba(255,255,255,0.1); }
+
+        .stats-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; color: white; font-weight: bold; font-size: 0.85rem; margin: 2px; }
+        .bg-jg { background-color: var(--blue); } .bg-gp { background-color: var(--dark-green); } .bg-gc { background-color: var(--red); }
+
+        .neon-text { font-weight: 900; font-size: 3rem; animation: neon-pulse 1.5s infinite alternate; }
+        @keyframes neon-pulse { from { text-shadow: 0 0 10px #fff, 0 0 20px var(--blue); } to { text-shadow: 0 0 15px #fff, 0 0 30px var(--blue); } }
+
+        .bible-bar { height: 25px; background: #111; color: var(--gold); font-size: 0.9rem; font-weight: 700; display: flex; align-items: center; overflow: hidden; white-space: nowrap; }
+        .marquee { display: inline-block; padding-left: 100%; animation: scroll 25s linear infinite; }
         @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
 
-        .team-inputs { height: 8%; background: #111; display: flex; gap: 4px; padding: 0 6px; align-items: center; }
-        .input-team { width: 50%; height: 28px; background: #222; border: 1px solid #444; color: white; border-radius: 6px; text-align: center; font-size: 0.7rem; text-transform: uppercase; }
+        .team-inputs { height: 30px; background: #111; display: flex; width: 100%; }
+        .input-team { 
+            width: 50%; height: 100%; background: #222; border: 1px solid #333; 
+            color: white; border-radius: 0; text-align: center; font-size: 0.85rem; 
+            text-transform: uppercase; box-sizing: border-box; 
+        }
 
-        .data-area { height: 10%; display: flex; justify-content: space-between; align-items: center; padding: 0 10px; }
-        .value-box { background: #151515; border-radius: 4px; width: 31%; height: 24px; display: flex; justify-content: center; align-items: center; font-size: 0.85rem; border-bottom: 2px solid #444; color: #fff; }
-        .value-box.active { border-bottom-color: var(--blue); background: #222; }
+        .val-area { height: 35px; display: flex; justify-content: space-between; align-items: center; padding: 0 10px; background: #000; }
+        .value-box { background: #151515; width: 30%; height: 28px; display: flex; justify-content: center; align-items: center; border-bottom: 2px solid #444; font-size: 1.2rem; font-weight: 900; }
+        #c1, #c4 { color: var(--blue); } #c2, #c5 { color: var(--green-lemon); } #c3, #c6 { color: var(--red); }
 
-        /* TECLADO COM BLOQUEIO PARCIAL */
-        .keypad-area { height: 45%; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; padding: 4px; background: #000; }
-        button { border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: white; transition: 0.2s; }
-        button:disabled { opacity: 0.2; cursor: not-allowed; filter: grayscale(1); }
-        .btn-num { background: #222; font-size: 1.3rem; height: 42px; }
-        .btn-compact { height: 38px !important; font-size: 0.65rem; text-transform: uppercase; }
+        .keypad-area { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; padding: 2px; background: #333; }
+        button { border: none; background: #1a1a1a; color: white; font-weight: bold; cursor: pointer; font-size: 1.4rem; display: flex; align-items: center; justify-content: center; }
+        button:disabled { opacity: 0.15; }
+        .btn-compact { font-size: 1.3rem; }
 
-        /* HISTÓRICO E TERMÔMETRO */
-        #history-screen { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 100; overflow-y: auto; padding: 15px; box-sizing: border-box; color: #fff; }
-        .market-stats { background: #111; border: 1px solid #333; border-radius: 12px; padding: 10px; margin-bottom: 15px; }
-        .market-item { margin-bottom: 10px; }
-        .market-info { display: flex; justify-content: space-between; font-size: 0.65rem; margin-bottom: 3px; }
-        .thermo-bg { width: 100%; height: 6px; background: #333; border-radius: 3px; overflow: hidden; }
-        .thermo-fill { height: 100%; transition: width 0.5s; background: linear-gradient(to right, var(--red), var(--gold), var(--green)); }
-        .history-card { background: #111; padding: 12px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #333; position: relative; }
+        #history-screen { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 200; overflow-y: auto; padding: 15px; box-sizing: border-box; color: white; }
+        .card { background: #111; border: 2px solid #333; border-radius: 12px; padding: 15px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
-    <div class="smartphone">
-        <div class="screen">
-            <div class="display">
-                <div id="standby-screen">
-                    <div class="neon-text" style="color:var(--blue); font-size: 2.2rem;">K.C⚽️M</div>
-                    <div style="color:#fff; font-size:0.7rem;">ARIDELSON B. MASTER</div>
+    <div class="main-app">
+        <div id="history-screen">
+            <h2 style="color:var(--gold); text-align:center; margin-bottom:10px;">📊 PAINEL</h2>
+            <div id="ticket-stats" style="display: flex; justify-content: space-around; background: #1a1a1a; padding: 10px; border-radius: 10px; margin-bottom: 15px; border: 1px solid var(--gold);"></div>
+            <div id="market-stats"></div>
+            <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
+            <div id="history-list"></div>
+            <button onclick="toggleHistory(false)" style="width:100%; padding:18px; background:var(--red); color:white; border-radius:10px; border:none; font-weight:bold; font-size:1.1rem; cursor:pointer; margin-bottom:20px;">VOLTAR</button>
+        </div>
+
+        <div class="display">
+            <div id="iframe-visor">
+                <button class="close-iframe-btn" onclick="toggleIframe(false)">X</button>
+                
+                <iframe src="https://www.sofascore.com/pt/torneio/futebol/brazil/brasileirao-serie-a/325/tabelas/incorporar" style="color: red"; width="800" height="1600" font-size: 100px;"></iframe>
+            
+            </div>
+            <div id="standby-screen">
+                <div class="neon-text" style="color:var(--blue);">K.C⚽️M</div>
+                <div style="color:#fff; font-size:0.9rem;">ARIDELSON B. MASTER</div>
+            </div>
+            <div class="visor-half top-half" id="box-top">
+                <div class="res-balloon" id="bal-top">
+                    <div id="miniA"></div>
+                    <span class="neon-text" id="title-top" style="font-size:2.5rem">K.C⚽️M</span>
+                    <span id="res-top" style="font-weight:900; font-size:2rem"></span>
                 </div>
-                <div class="visor-half top-half" id="box-top"><div class="res-balloon" id="bal-top"><span id="miniA" style="font-size:0.5rem"></span><span class="neon-text" id="title-top">K.C⚽️M</span><span id="res-top" style="font-weight:900; font-size:0.95rem"></span></div></div>
-                <div class="visor-half" id="box-btm"><div class="res-balloon" id="bal-btm"><span id="miniB" style="font-size:0.5rem"></span><span class="neon-text" id="title-btm">R⚽️3</span><span id="res-btm" style="font-weight:900; font-size:0.95rem"></span></div></div>
             </div>
-
-            <div class="bible-bar"><div class="marquee">"Confia no Senhor" • "Tudo posso naquele que me fortalece" • "Deus provê"</div></div>
-
-            <div class="team-inputs">
-                <input type="text" id="tA" class="input-team" placeholder="TIME CASA" oninput="validateInput()">
-                <input type="text" id="tB" class="input-team" placeholder="TIME FORA" oninput="validateInput()">
+            <div class="visor-half" id="box-btm">
+                <div class="res-balloon" id="bal-btm">
+                    <div id="miniB"></div>
+                    <span class="neon-text" id="title-btm" style="font-size:2.5rem">R⚽️3</span>
+                    <span id="res-btm" style="font-weight:900; font-size:2rem"></span>
+                </div>
             </div>
+        </div>
 
-            <div class="data-area">
-                <div style="width:46%; display:flex; justify-content:space-between;"><div class="value-box" id="c1">--</div><div class="value-box" id="c2">--</div><div class="value-box" id="c3">--</div></div>
-                <div style="color:#444">/</div>
-                <div style="width:46%; display:flex; justify-content:space-between;"><div class="value-box" id="c4">--</div><div class="value-box" id="c5">--</div><div class="value-box" id="c6">--</div></div>
-            </div>
+        <div class="bible-bar"><div class="marquee">"Tudo posso naquele que me fortalece" • "O Senhor é o meu pastor e nada me faltará" • Aridelson B. Master</div></div>
 
-            <div class="keypad-area">
-                <button class="btn-num lockable" onclick="typeNum('1')" disabled>1</button>
-                <button class="btn-num lockable" onclick="typeNum('2')" disabled>2</button>
-                <button class="btn-num lockable" onclick="typeNum('3')" disabled>3</button>
-                <button class="btn-num lockable" style="background:var(--red)" onclick="nav(-1)" disabled>&lt;</button>
-                
-                <button class="btn-num lockable" onclick="typeNum('4')" disabled>4</button>
-                <button class="btn-num lockable" onclick="typeNum('5')" disabled>5</button>
-                <button class="btn-num lockable" onclick="typeNum('6')" disabled>6</button>
-                <button class="btn-num lockable" style="background:var(--green); color:black" onclick="nav(1)" disabled>&gt;</button>
-                
-                <button class="btn-num lockable" onclick="typeNum('7')" disabled>7</button>
-                <button class="btn-num lockable" onclick="typeNum('8')" disabled>8</button>
-                <button class="btn-num lockable" onclick="typeNum('9')" disabled>9</button>
-                <button class="btn-num lockable" onclick="typeNum('0')" disabled>0</button>
-                
-                <button class="btn-compact lockable" style="grid-column: span 2; background:var(--red)" onclick="cleanAllFields()" disabled>Limpar Tudo</button>
-                <button class="btn-compact lockable" style="grid-column: span 2; background:white; color:black" onclick="cleanCalculatorOnly()" disabled>Limpar Dados</button>
-                
-                <button class="btn-compact lockable" id="btnAdd" style="grid-column: span 2; background:var(--blue)" onclick="addGame()" disabled>Adicionar Jogo</button>
-                
-                <button class="btn-compact" style="grid-column: span 2; background:var(--green); color:black" onclick="finishTicket()">Finalizar Bilhete</button>
-                <button class="btn-compact" style="grid-column: span 4; background:#333" onclick="toggleHistory(true)">📜 Eficiência e Histórico</button>
-            </div>
+        <div class="team-inputs">
+            <input type="text" id="tA" class="input-team" placeholder="CASA" oninput="v()">
+            <input type="text" id="tB" class="input-team" placeholder="FORA" oninput="v()" onkeydown="if(event.key==='Enter'){this.blur(); n(0);}">
+        </div>
 
-            <div id="history-screen">
-                <h4 style="text-align:center; color:var(--gold); margin: 5px 0;">TERMÔMETRO DE ESTRATÉGIAS</h4>
-                <div class="market-stats" id="market-panel"></div>
-                <div id="history-list"></div>
-                <button style="width:100%; padding:14px; background:var(--red); border-radius:8px; font-weight:bold; border:none; color:white;" onclick="toggleHistory(false)">VOLTAR</button>
-            </div>
+        <div class="val-area">
+            <div style="width:45%; display:flex; justify-content:space-between;"><div class="value-box" id="c1">--</div><div class="value-box" id="c2">--</div><div class="value-box" id="c3">--</div></div>
+            <div style="color:#555; font-weight:bold">/</div>
+            <div style="width:45%; display:flex; justify-content:space-between;"><div class="value-box" id="c4">--</div><div class="value-box" id="c5">--</div><div class="value-box" id="c6">--</div></div>
+        </div>
+
+        <div class="keypad-area">
+            <button class="lockable" onclick="t('1')" disabled>1</button><button class="lockable" onclick="t('2')" disabled>2</button><button class="lockable" onclick="t('3')" disabled>3</button><button class="lockable" style="background:var(--red) !important" onclick="n(-1)" disabled>&lt;</button>
+            <button class="lockable" onclick="t('4')" disabled>4</button><button class="lockable" onclick="t('5')" disabled>5</button><button class="lockable" onclick="t('6')" disabled>6</button><button class="lockable" style="background:var(--green) !important; color:black" onclick="n(1)" disabled>&gt;</button>
+            <button class="lockable" onclick="t('7')" disabled>7</button><button class="lockable" onclick="t('8')" disabled>8</button><button class="lockable" onclick="t('9')" disabled>9</button><button class="lockable" onclick="t('0')" disabled>0</button>
+            <button class="btn-compact lockable" style="background:var(--red) !important" onclick="cleanAll()" disabled>⛔️</button>
+            <button class="btn-compact lockable" style="background:white !important; color:black" onclick="cleanCalc()" disabled>♻️</button>
+            <button class="btn-compact lockable" style="background:var(--blue) !important" onclick="addGame()" disabled>✅</button>
+            <button class="btn-compact" style="background:var(--lilac) !important" onclick="finishTicket()">💾</button>
+            <button class="btn-compact" style="grid-column: span 2; background:var(--gold) !important; color:black" onclick="toggleIframe(true)">💻</button>
+            <button class="btn-compact" style="grid-column: span 2; background:#222 !important;" onclick="toggleHistory(true)">📂</button>
         </div>
     </div>
 
     <script>
-        let index = 1;
-        let currentTicket = [];
-        let allTickets = JSON.parse(localStorage.getItem('ari_master_v5')) || [];
-
-        function validateInput() {
-            const tA = document.getElementById('tA').value.trim();
-            const tB = document.getElementById('tB').value.trim();
-            const btns = document.querySelectorAll('.lockable');
-            btns.forEach(b => b.disabled = !(tA && tB));
+        let idx = 1, curTkt = [], allTkts = JSON.parse(localStorage.getItem('ari_master_v8')) || [];
+        function toggleIframe(show) { document.getElementById('iframe-visor').classList.toggle('open', show); }
+        function v() { const a=document.getElementById('tA').value, b=document.getElementById('tB').value; document.querySelectorAll('.lockable').forEach(x=>x.disabled=!(a&&b)); }
+        function t(n) { let c=document.getElementById('c'+idx); c.innerText=(c.innerText==='--')?n:c.innerText+n; }
+        function n(d) { 
+            idx=Math.max(1,Math.min(6,idx+d)); 
+            document.querySelectorAll('.value-box').forEach(e=>e.style.background='#151515'); 
+            document.getElementById('c'+idx).style.background='#252525';
+            if(d===1 && idx===6) { toggleIframe(false); calc(); }
         }
-
-        function typeNum(n) { 
-            let cell = document.getElementById('c' + index); 
-            cell.innerText = (cell.innerText === '--') ? n : cell.innerText + n; 
-        }
-
-        function nav(dir) { 
-            if (dir === 1 && index === 6) calculate(); 
-            else { index = Math.max(1, Math.min(6, index + dir)); updateUI(); } 
-        }
-
-        function updateUI() { 
-            document.querySelectorAll('.value-box').forEach(el => el.classList.remove('active')); 
-            document.getElementById('c' + index).classList.add('active'); 
-        }
-
-        function cleanAllFields() { 
-            document.getElementById('tA').value = ""; document.getElementById('tB').value = ""; 
-            validateInput(); cleanCalculatorOnly(); 
-        }
-
-        function cleanCalculatorOnly() {
-            for (let i = 1; i <= 6; i++) document.getElementById('c' + i).innerText = '--';
-            document.getElementById('standby-screen').style.display = 'flex';
-            document.getElementById('box-top').style.display = 'none'; document.getElementById('box-btm').style.display = 'none';
-            index = 1; updateUI();
-        }
-
-        function calculate() {
-            const getV = (id) => parseFloat(document.getElementById('c' + id).innerText) || 0;
-            const jA=getV(1), gpA=getV(2), gcA=getV(3), jB=getV(4), gpB=getV(5), gcB=getV(6);
-            if (jA > 0 && jB > 0) {
-                document.getElementById('standby-screen').style.display = 'none';
-                document.getElementById('box-top').style.display = 'flex'; document.getElementById('box-btm').style.display = 'flex';
-                document.getElementById('miniA').innerText = `JG:${jA} GP:${gpA} GC:${gcA}`;
-                document.getElementById('miniB').innerText = `JG:${jB} GP:${gpB} GC:${gcB}`;
-                const m = (gpA + gpB) / (jA + jB), r = ((gpA/jA)+(gcA/jA)) + ((gpB/jB)+(gcB/jB));
-                setRes('bal-top','res-top','title-top', getLabel(m,'k'), getCol(m,'k'));
-                setRes('bal-btm','res-btm','title-btm', getLabel(r,'r'), getCol(r,'r'));
+        function cleanAll() { document.getElementById('tA').value=""; document.getElementById('tB').value=""; v(); cleanCalc(); }
+        function cleanCalc() { for(let i=1;i<=6;i++)document.getElementById('c'+i).innerText='--'; document.getElementById('standby-screen').style.display='flex'; document.getElementById('box-top').style.display='none'; document.getElementById('box-btm').style.display='none'; idx=1; n(0); }
+        function calc() {
+            const g=(i)=>parseFloat(document.getElementById('c'+i).innerText)||0;
+            const jA=g(1), gpA=g(2), gcA=g(3), jB=g(4), gpB=g(5), gcB=g(6);
+            if(jA>0 && jB>0){
+                document.getElementById('standby-screen').style.display='none';
+                document.getElementById('box-top').style.display='flex'; document.getElementById('box-btm').style.display='flex';
+                document.getElementById('miniA').innerHTML=`<span class="stats-badge bg-jg">JG:${jA}</span><span class="stats-badge bg-gp">GP:${gpA}</span><span class="stats-badge bg-gc">GC:${gcA}</span>`;
+                document.getElementById('miniB').innerHTML=`<span class="stats-badge bg-jg">JG:${jB}</span><span class="stats-badge bg-gp">GP:${gpB}</span><span class="stats-badge bg-gc">GC:${gcB}</span>`;
+                let m=(gpA+gpB)/(jA+jB), r=((gpA/jA)+(gcA/jA)) + ((gpB/jB)+(gcB/jB));
+                setR('bal-top','res-top','title-top', getL(m,'k'), getC(m,'k'));
+                setR('bal-btm','res-btm','title-btm', getL(r,'r'), getC(r,'r'));
             }
         }
-
-        function getLabel(v, t) {
-            if(t==='k') return v<2?"4.5 UNDER":v<=2.29?"0.5 OVER":v<=3.29?"1.5 OVER":"2.5 OVER";
-            return v<4?"4.5 UNDER":v<=5.99?"0.5 OVER":v<=7.99?"1.5 OVER":"2.5 OVER";
-        }
-
-        function getCol(v, t) { return (v < (t==='k'?2:4)) ? "#ff3b30" : "#4cd964"; }
-
-        function setRes(b,r,t,txt,c) {
-            document.getElementById(b).style.background = c; document.getElementById(r).innerText = txt;
-            const color = c === "#4cd964" ? "black" : "white";
-            document.getElementById(r).style.color = color; document.getElementById(t).style.color = color;
-        }
-
+        function getL(v,t) { if(t==='k') return v<2?"4.5 UNDER":v<=2.29?"0.5 OVER":v<=3.29?"1.5 OVER":"2.5 OVER"; return v<4?"4.5 UNDER":v<=5.99?"0.5 OVER":v<=7.99?"1.5 OVER":"2.5 OVER"; }
+        function getC(v,t) { return v<(t==='k'?2:4)?"#ff3b30":"#4cd964"; }
+        function setR(b,r,t,txt,c) { document.getElementById(b).style.background=c; document.getElementById(r).innerText=txt; let cl=c==="#4cd964"?"black":"white"; document.getElementById(r).style.color=cl; document.getElementById(t).style.color=cl; }
         function addGame() {
-            const res = document.getElementById('res-top').innerText;
-            if(!res) return alert("Calcule primeiro!");
-            const tA = document.getElementById('tA').value.toUpperCase();
-            const tB = document.getElementById('tB').value.toUpperCase();
-            currentTicket.push({ t: tA + " x " + tB, k: res, s: 'pending' });
-            alert("Adicionado!"); cleanAllFields();
+            const r=document.getElementById('res-top').innerText; if(!r)return;
+            curTkt.push({ t: document.getElementById('tA').value.toUpperCase()+" x "+document.getElementById('tB').value.toUpperCase(), k: r, s: 'pending' });
+            cleanAll(); toggleIframe(true);
         }
-
         function finishTicket() {
-            if(currentTicket.length === 0) return alert("Nenhum jogo no bilhete!");
-            allTickets.push({ id: Date.now(), games: currentTicket, data: new Date().toLocaleString() });
-            localStorage.setItem('ari_master_v5', JSON.stringify(allTickets));
-            currentTicket = []; alert("Bilhete Finalizado!");
+            if(curTkt.length===0) return alert("Adicione jogos primeiro!");
+            allTkts.unshift({ id:Date.now(), games:curTkt, data:new Date().toLocaleString() });
+            localStorage.setItem('ari_master_v8', JSON.stringify(allTkts));
+            curTkt=[]; cleanAll(); toggleIframe(false);
+            alert("Bilhete Formado!");
         }
-
-        function toggleHistory(s) { document.getElementById('history-screen').style.display = s ? 'block' : 'none'; if(s) renderHistory(); }
-
-        function markGame(tid, idx, stat) {
-            const t = allTickets.find(tk => tk.id === tid);
-            if(t) { t.games[idx].s = stat; localStorage.setItem('ari_master_v5', JSON.stringify(allTickets)); renderHistory(); }
-        }
-
-        function deleteTicket(id) { if(confirm("Excluir?")) { allTickets = allTickets.filter(t => t.id !== id); localStorage.setItem('ari_master_v5', JSON.stringify(allTickets)); renderHistory(); } }
-
-        function renderHistory() {
-            const l = document.getElementById('history-list'); l.innerHTML = "";
-            const p = document.getElementById('market-panel'); p.innerHTML = "";
-            let stats = { "0.5 OVER": {g:0, r:0}, "1.5 OVER": {g:0, r:0}, "2.5 OVER": {g:0, r:0}, "4.5 UNDER": {g:0, r:0} };
-
-            allTickets.slice().reverse().forEach(t => {
-                const isRed = t.games.some(g => g.s === 'loss');
-                const isGreen = t.games.every(g => g.s === 'win');
-                let d = document.createElement('div'); d.className = 'history-card';
-                let st = isRed ? 'background:var(--red)' : (isGreen ? 'background:var(--green);color:black' : 'background:#444');
-                d.innerHTML = `<button onclick="deleteTicket(${t.id})" style="position:absolute; top:8px; right:8px; background:none; border:none; color:#777; font-size:1.2rem;">×</button>
-                               <div style="padding:2px 8px; border-radius:4px; font-weight:bold; font-size:0.6rem; display:inline-block; ${st}">${isRed?'RED':(isGreen?'GREEN':'ABERTO')}</div>`;
-                
-                t.games.forEach((g, i) => {
-                    if(g.s === 'win') stats[g.k].g++; if(g.s === 'loss') stats[g.k].r++;
-                    let c = g.s==='win'?'var(--green)':(g.s==='loss'?'var(--red)':'white');
-                    d.innerHTML += `<div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #222; margin-top:8px; padding-top:5px">
-                        <div style="font-size:0.7rem; color:${c}"><b>${g.t}</b><br>${g.k}</div>
-                        <div style="display:flex; gap:6px">
-                            <button onclick="markGame(${t.id},${i},'win')" style="width:28px; height:28px; border-radius:50%; background:var(--green); color:black; border:none; font-weight:bold">V</button>
-                            <button onclick="markGame(${t.id},${i},'loss')" style="width:28px; height:28px; border-radius:50%; background:var(--red); color:white; border:none; font-weight:bold">X</button>
+        function toggleHistory(s) { document.getElementById('history-screen').style.display=s?'block':'none'; if(s)renderH(); }
+        function renderH() {
+            const l=document.getElementById('history-list'), mStats=document.getElementById('market-stats'), tStats=document.getElementById('ticket-stats');
+            l.innerHTML=""; mStats.innerHTML=""; 
+            let markets = {"0.5 OVER":{g:0,r:0}, "1.5 OVER":{g:0,r:0}, "2.5 OVER":{g:0,r:0}, "4.5 UNDER":{g:0,r:0}};
+            let tGreen = 0, tRed = 0;
+            allTkts.forEach((t,ti)=>{
+                let isTicketGreen = t.games.every(g => g.s === 'win');
+                let isTicketRed = t.games.some(g => g.s === 'loss');
+                if(isTicketGreen) tGreen++; if(isTicketRed) tRed++;
+                let d=document.createElement('div'); d.className="card";
+                d.innerHTML=`<div style="font-size:0.9rem; color:var(--gold); font-weight:bold; margin-bottom:10px">${t.data}</div>`;
+                t.games.forEach((g,gi)=>{
+                    if(markets[g.k]) { if(g.s==='win') markets[g.k].g++; if(g.s==='loss') markets[g.k].r++; }
+                    let borderColor = g.s==='win'?'var(--green)':g.s==='loss'?'var(--red)':'#444';
+                    d.innerHTML+=`<div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; border:2px solid ${borderColor}; padding:10px; border-radius:8px; background:#000">
+                        <span style="font-size:1rem"><b>${g.t}</b><br><span style="color:var(--green-lemon)">${g.k}</span></span>
+                        <div style="display:flex; gap:8px">
+                            <button onclick="mark(${ti},${gi},'win')" style="background:var(--green); color:black; border:none; border-radius:50%; width:35px; height:35px; font-weight:bold; font-size:1.2rem">V</button>
+                            <button onclick="mark(${ti},${gi},'loss')" style="background:var(--red); color:white; border:none; border-radius:50%; width:35px; height:35px; font-weight:bold; font-size:1.2rem">X</button>
                         </div>
                     </div>`;
                 });
+                d.innerHTML+=`<button onclick="delH(${ti})" style="background:none; border:none; color:#666; font-size:0.8rem; margin-top:12px; cursor:pointer">🗑️ APAGAR</button>`;
                 l.appendChild(d);
             });
-
-            for(let m in stats){
-                let total = stats[m].g + stats[m].r;
-                let perc = total > 0 ? Math.round((stats[m].g / total) * 100) : 0;
-                p.innerHTML += `
-                <div class="market-item">
-                    <div class="market-info">
-                        <span style="color:var(--gold); font-weight:bold">${m}</span>
-                        <span>${perc}% Eficiência (${stats[m].g}V/${stats[m].r}D)</span>
-                    </div>
-                    <div class="thermo-bg"><div class="thermo-fill" style="width:${perc}%"></div></div>
+            let totalTickets = tGreen + tRed;
+            let pg = totalTickets > 0 ? Math.round((tGreen/totalTickets)*100) : 0;
+            tStats.innerHTML = `<div style="text-align:center"><b style="color:var(--green)">GREEN</b><br>${tGreen} (${pg}%)</div><div style="text-align:center"><b style="color:var(--red)">RED</b><br>${tRed}</div>`;
+            for(let m in markets){
+                let tot=markets[m].g+markets[m].r, per=tot>0?Math.round((markets[m].g/tot)*100):0;
+                mStats.innerHTML+=`<div style="font-size:0.9rem; margin-bottom:12px">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:4px"><span>${m}</span><span style="font-weight:bold; color:var(--green-lemon)">${per}%</span></div>
+                    <div style="height:10px; background:#222; border-radius:6px; overflow:hidden;"><div style="height:100%; background:var(--green); width:${per}%"></div></div>
                 </div>`;
             }
         }
-        updateUI();
+        function mark(ti,gi,st){ allTkts[ti].games[gi].s=st; localStorage.setItem('ari_master_v8',JSON.stringify(allTkts)); renderH(); }
+        function delH(i){ if(confirm("Apagar?")){ allTkts.splice(i,1); localStorage.setItem('ari_master_v8',JSON.stringify(allTkts)); renderH(); } }
     </script>
 </body>
 </html>
